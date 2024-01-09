@@ -47,7 +47,12 @@ export const canvassStore = defineStore('canvass', () => {
     // })
 
     // getters 
-    const items = computed( () => _items.value)
+    const items = computed( () => {
+        return _items.value.map((i) => ({
+            ...i,
+            date_requested: moment(Number(i.date_requested)).format('YYYY-MM-DD'),
+        }));
+    })
     const units = computed( () => _units.value)
     const brands = computed( () => _brands.value)
     const employees = computed( () => {
@@ -74,7 +79,7 @@ export const canvassStore = defineStore('canvass', () => {
     }
 
     const setItems = (items: ICanvass[]) => {
-        console.log(_store + 'setEmployees()', items)
+        console.log(_store + 'setItems()', items)
         _items.value = items
     }
 
@@ -109,6 +114,10 @@ export const canvassStore = defineStore('canvass', () => {
     }
 
     // // methods
+
+    const init = async() => {
+        setItems(await canvassService.findAll())
+    }
 
     const initUpdateFormData = async(id: string) => {
         console.log(_store + 'initUpdateFormData()', id)
@@ -197,6 +206,7 @@ export const canvassStore = defineStore('canvass', () => {
         onDelete,
         resetFormData,
         // setFormData,
+        init,
         initUpdateFormData,
     }
 })

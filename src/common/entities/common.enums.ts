@@ -26,7 +26,7 @@ export const enum APPROVAL_STATUS {
     PENDING = 1,
     APPROVED = 2,
     DISAPPROVED = 3,
-    // CANCELLED = 4,
+    CANCELLED = 4,
 }
 
 export const enum REQUEST_TYPES {

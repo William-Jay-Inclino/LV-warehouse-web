@@ -1,4 +1,5 @@
 import { ICanvass, ICanvassItem, IItem } from "../common/entities";
+import { sendRequest } from "../config/api";
 import { ICreateCanvassDto } from "./dto/canvass.dto";
 import { faker } from '@faker-js/faker';
 
@@ -8,8 +9,31 @@ class CanvassService{
     private service = 'CanvassService: '
     private ctr = 2
 
-    async findAll(): Promise<ICanvass[]>{
-        return []
+    async findAll(): Promise<ICanvass[]> {
+        const query = `
+            query{
+                canvasses{
+                id
+                rc_number
+                date_requested
+                requested_by{
+                    id
+                    firstname
+                    middlename
+                    lastname
+                }
+                }
+            }
+        `;
+
+        try {
+            const response = await sendRequest(query);
+            console.log('response', response)
+            return response.data.data.canvasses;
+        } catch (error) {
+            console.error(error);
+            throw error
+        }
     }
 
     async findOne(id: string): Promise<ICanvass | null>{
