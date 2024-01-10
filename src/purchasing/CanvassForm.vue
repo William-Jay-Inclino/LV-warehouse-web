@@ -15,8 +15,8 @@
         <div class="row justify-content-center mt-5">
             <div class="col-11">
                 <div class="float-right">
-                    <button @click="onSubmit(1)" type="button" class="btn btn-success form-btn ml-2">Submit & Finish</button>
-                    <button @click="onSubmit(2)" type="button" class="btn btn-primary form-btn ml-2">Submit & Add Again</button>
+                    <button @click="onSubmit(1)" type="button" class="btn btn-success form-btn ml-2">Save & Finish</button>
+                    <button @click="onSubmit(2)" type="button" class="btn btn-primary form-btn ml-2">Save & Add Again</button>
                 </div>
             </div>
         </div>
@@ -31,31 +31,33 @@
         
                     <div class="card-body">
                         <div class="form-group">
+                            <label>RC Number</label>
+                            <input type="text" class="form-control" :value="$module.formData.rc_number" disabled>
+                        </div>
+                        <div class="form-group">
                             <label>Date</label>
                             <input type="date" class="form-control" v-model="$module.formData.date_requested">
-                            <!-- <small class="form-text text-danger"> {{ errorMsg }} </small> -->
+                            <small class="form-text text-danger" v-if="$module.formErrors.date_requested"> {{ errorMsg }} </small>
                         </div>
                         <div class="form-group">
                             <label>Requested By</label>
-                            <v-select :options="$module.employees" v-model="$module.formData.requested_by"></v-select>
-                            <!-- <small class="form-text text-danger"> {{ errorMsg }} </small> -->
+                            <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by"></v-select>
+                            <small class="form-text text-danger" v-if="$module.formErrors.requested_by"> {{ errorMsg }} </small>
                         </div>
                         <div class="form-group">
                             <label>Noted By</label>
-                            <v-select :options="$module.employees" v-model="$module.formData.noted_by"></v-select>
-                            <!-- <small class="form-text text-danger"> {{ errorMsg }} </small> -->
+                            <v-select label="fullname" :options="$module.employees" v-model="$module.formData.noted_by"></v-select>
+                            <small class="form-text text-danger" v-if="$module.formErrors.noted_by"> {{ errorMsg }} </small>
                         </div>
                         <div class="form-group">
                             <label>Purpose</label>
                             <textarea class="form-control" rows="3" v-model="$module.formData.purpose"></textarea>
-                            <!-- <small class="form-text text-danger" > {{ errorMsg }} </small> -->
-                            <!-- <small class="text-muted">optional</small> -->
+                            <small class="form-text text-danger" v-if="$module.formErrors.purpose"> {{ errorMsg }} </small>
                         </div>
                         <div class="form-group">
                             <label>Notes</label>
                             <textarea class="form-control" rows="3" v-model="$module.formData.notes"></textarea>
-                            <!-- <small class="form-text text-danger" > {{ errorMsg }} </small> -->
-                            <!-- <small class="text-muted">optional</small> -->
+                            <small class="text-muted">optional</small>
                         </div>
                     </div>
 
@@ -65,7 +67,7 @@
             </div>
 
             <div class="col-8">
-                <Particulars :items="$module.formData.items" @add-item="addItem" @remove-item="removeItem"/>
+                <Particulars :error-form="$module.formErrors.items" :items="$module.formData.items" :brands="$module.brands" :units="$module.units" @add-item="addItem" @remove-item="removeItem"/>
             </div>
         </div>
 
@@ -82,25 +84,16 @@
     import Breadcrumbs from '../common/components/Breadcrumbs.vue'
     import { useToast } from "vue-toastification";
     import { routeNames } from '../common';
-    import * as mock from '../__temp__/data'
     import { canvassStore } from './canvass.store';
-    import { IITemDto } from '../common/dto/IItem.dto';
+    import { IITem } from '../common/dto/IItem.dto';
     import Particulars from './components/Particulars.vue';
 
     const toast = useToast();
     const router = useRouter()
     const $module = canvassStore()
 
-    const _units = mock.units
-    const _brands = mock.brands 
-    const _employees = mock.employees
-
-    $module.setUnits(_units)
-    $module.setBrands(_brands)
-    $module.setEmployees(_employees)
-
-    const moduleLabel = 'Canvass'
-    // const errorMsg = ref('This field is required')
+    $module.initForm()
+    const errorMsg = ref('This field is required')
 
     const breadcrumbItems = ref([
         {
@@ -129,22 +122,24 @@
 
         if(query.id){
             // intialize update form / populate form 
-            await $module.initUpdateFormData(query.id as string)
+            // await $module.initUpdateFormData(query.id as string)
         }
     })
 
 
     const onSubmit = async(action: number) => {
         console.log('onSubmit()')
-        const submitted = await $module.onCreate({data: {...$module.formData}})
+        const res = await $module.onSubmit({formData: {...$module.formData}})
 
-        if(!submitted){
-            toast.error('Failed to save ' + moduleLabel)
+        console.log('res', res)
+
+        if(!res.success){
+            toast.error(res.msg)
             return 
         }
 
         $module.resetFormData()
-        toast.success(moduleLabel + ' successfully saved!')
+        toast.success(res.msg)
 
         if(action === 1){
             router.push({name: routeNames.purchasing_canvass})
@@ -152,7 +147,7 @@
 
     }
 
-    const addItem = (data: IITemDto) => $module.onAddItem({data})
+    const addItem = (data: IITem) => $module.onAddItem({data})
     const removeItem = (indx: number) => $module.onRemoveItem({indx})
 
     // const onCancel = () => {

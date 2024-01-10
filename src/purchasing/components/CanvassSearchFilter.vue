@@ -9,7 +9,7 @@
                     <div class="col-6">
                         <div class="form-group">
                             <label for="formGroupExampleInput">RC Number</label>
-                            <v-select label="rc_number" :options="rcNumbers" v-model="selectedRcNumber"></v-select>
+                            <v-select label="rc_number" :options="$canvass.items" v-model="selectedRcNumber"></v-select>
                         </div>
                     </div>
                     <div class="col-6">
@@ -23,7 +23,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label for="formGroupExampleInput2">Requisitioner</label>
-                            <v-select label="fullname" :options="employees" v-model="selectedEmployee"></v-select>
+                            <v-select label="fullname" :options="$canvass.employees" v-model="selectedEmployee"></v-select>
                         </div>
                     </div>
                 </div>
@@ -37,42 +37,12 @@
 
 <script setup lang="ts">
     import { ref } from 'vue';
-    import { sendRequest } from '../../config/api';
     import { ISearchRcNumber, ISearchEmployee } from '../entities/common.entites';
-    import { getFullname } from '../../common';
+    import { canvassStore } from '../canvass.store';
 
-
-    const rcNumbers = ref<ISearchRcNumber[]>([])
     const selectedRcNumber = ref<ISearchRcNumber | null>(null)
-    const employees = ref<ISearchEmployee[]>([])
     const selectedEmployee = ref<ISearchEmployee | null>(null)
 
-    fetchData()
-
-    async function fetchData(){
-        const query = `
-            query {
-                canvasses {
-                    rc_number
-                },
-                employees{
-                    id
-                    firstname
-                    middlename
-                    lastname
-                }
-            }
-        `;
-        try {
-            const response = await sendRequest(query);
-            console.log('response', response)
-            rcNumbers.value = response.data.data.canvasses
-            employees.value = response.data.data.employees.map((i: ISearchEmployee) => ({...i, fullname: getFullname(i.firstname, i.middlename, i.lastname)}))
-            // return response.data.data.canvasses
-        } catch (error) {
-            console.error(error);
-            throw error
-        }
-    }
+    const $canvass = canvassStore()
 
 </script>

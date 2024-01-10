@@ -98,7 +98,7 @@
 import CanvassTitle from "./components/CanvassTitle.vue";
 import { useToast } from "vue-toastification";
 import Swal from 'sweetalert2'
-import SearchFilter from "./components/SearchFilter.vue";
+import SearchFilter from "./components/CanvassSearchFilter.vue";
 import TablePagination from './components/TablePagination.vue'
 import TablePerPage from './components/TableSelectPerPage.vue'
 import { routeNames } from '../common';

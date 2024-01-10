@@ -1,27 +1,32 @@
-import { ICanvass, ICanvassItem, IItem } from "../common/entities";
+import { IBrand, ICanvass, IEmployee, IUnit } from "../common/entities";
 import { sendRequest } from "../config/api";
 import { ICreateCanvassDto } from "./dto/canvass.dto";
-import { faker } from '@faker-js/faker';
+import { IFormResponseData } from "./entities/canvass.entity";
 
 class CanvassService{
 
     // private endpoint = '/canvass/'
     private service = 'CanvassService: '
-    private ctr = 2
 
-    async findAll(): Promise<ICanvass[]> {
+    async findAll(): Promise<{canvasses: ICanvass[], employees: IEmployee[]}> {
         const query = `
             query{
                 canvasses{
-                id
-                rc_number
-                date_requested
-                requested_by{
                     id
-                    firstname
-                    middlename
-                    lastname
-                }
+                    rc_number
+                    date_requested
+                    requested_by{
+                        id
+                        firstname
+                        middlename
+                        lastname
+                    }
+                },
+                employees{
+                  id
+                  firstname
+                  middlename
+                  lastname
                 }
             }
         `;
@@ -29,67 +34,82 @@ class CanvassService{
         try {
             const response = await sendRequest(query);
             console.log('response', response)
-            return response.data.data.canvasses;
+            const data = response.data.data
+            return {
+                canvasses: data.canvasses,
+                employees: data.employees
+            }
         } catch (error) {
             console.error(error);
             throw error
         }
     }
 
-    async findOne(id: string): Promise<ICanvass | null>{
-        console.log('id', id)
-        const item = {} as ICanvass 
-        return item
+    async findOne(id: string): Promise<IFormResponseData | null> {
+        return null
+        // const query = `
+        //     query{
+        //         canvass(id: ${id}){
+        //             rc_number
+        //             id
+        //             purpose
+        //             notes
+        //             canvass_items{
+        //               item{
+        //                 description
+        //               }
+        //             }
+        //         }
+        //     }
+        // `;
+
+        // try {
+        //     const response = await sendRequest(query);
+        //     console.log('response', response)
+        //     const data = response.data.data
+        //     return {
+        //         canvasses: data.canvasses,
+        //         employees: data.employees
+        //     }
+        // } catch (error) {
+        //     console.error(error);
+        //     return null
+        // }
     }
 
     async create(payload: {data: ICreateCanvassDto}): Promise<ICanvass | null>{
         console.log(this.service + 'create()', payload)
+        const { data } = payload
 
-        const canvassId = faker.string.uuid()
+        const mutation = `
+            mutation CreateCanvass($data: CreateCanvassInput!) {
+                createCanvass(input: $data) {
+                    id
+                    rc_number
+                    date_requested
+                    requested_by {
+                        id
+                        firstname
+                        middlename
+                        lastname
+                    }
+                }
+            }
+        `;
 
-        const item = {} as ICanvass 
-        item.id = canvassId
-        item.date_requested = payload.data.date_requested
-        item.noted_by = payload.data.noted_by!
-        item.noted_by_id = payload.data.noted_by!.id
-        item.notes = payload.data.notes 
-        item.purpose = payload.data.purpose
-        item.rc_number = '23-0000' + this.ctr
-        item.requested_by = payload.data.requested_by!
-        item.requested_by_id = payload.data.requested_by!.id
-        
-        const items = payload.data.items.map(i => {
+        try {
+            const response = await sendRequest(mutation, {data});
+            console.log('response', response)
+            if(response.status === 200 && response.data.data){
+                return response.data.data.createCanvass 
+            }
+            console.error('Error creating canvass')
+            return null
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
 
-            const itemId = faker.string.uuid()
-
-            const x = {} as IItem
-            x.brand_id = i.brand ? i.brand.id : null
-            x.brand = i.brand || null
-            x.description = i.description
-            x.id = itemId
-            x.quantity = i.quantity
-            x.unit_id = i.unit!.id
-            x.unit = i.unit!
-            return x
-        }) 
-
-        const canvassItems: ICanvassItem[] = []
-
-        items.forEach(i => {
-            canvassItems.push({
-                id: faker.string.uuid(),
-                item_id: i.id,
-                item: i
-            })
-        })
-
-        item.items = canvassItems
-
-        this.ctr ++ 
-
-        // canvasses.unshift(item)
-
-        return item
     }
 
     async update(payload: {id: string, data: ICanvass}): Promise<ICanvass | null>{
@@ -101,6 +121,43 @@ class CanvassService{
     async remove(id: string): Promise<boolean> {
         console.log('id', id)
         return true
+    }
+
+    async initForm(): Promise<IFormResponseData> {
+        const query = `
+            query{
+                rc_number
+                brands{
+                    id
+                    name
+                }
+                units{
+                    id
+                    name
+                }
+                employees{
+                    id
+                    firstname
+                    middlename
+                    lastname
+                }
+            }
+        `;
+
+        try {
+            const response = await sendRequest(query);
+            console.log('response', response)
+            const data = response.data.data
+            return {
+                rc_number: data.rc_number,
+                brands: data.brands,
+                units: data.units,
+                employees: data.employees
+            }
+        } catch (error) {
+            console.error(error);
+            throw error
+        }
     }
 
 }

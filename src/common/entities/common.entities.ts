@@ -145,6 +145,8 @@ export interface IItem {
 
 export interface ICanvassItem {
     id: string 
+    canvas_id: string 
+    canvass: ICanvass
     item_id: string 
     item: IItem
 }
@@ -155,6 +157,7 @@ export interface ISupplierItem {
     item: IItem
     supplier_id: string 
     supplier: ISupplier
+    price: number
 }
 
 export interface IJO {
