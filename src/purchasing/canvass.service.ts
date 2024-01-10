@@ -1,6 +1,6 @@
-import { IBrand, ICanvass, IEmployee, IUnit } from "../common/entities";
+import { ICanvass, IEmployee } from "../common/entities";
 import { sendRequest } from "../config/api";
-import { ICreateCanvassDto } from "./dto/canvass.dto";
+import { ICreateCanvassDto, IUpdateCanvassDto } from "./dto/canvass.dto";
 import { IFormResponseData } from "./entities/canvass.entity";
 
 class CanvassService{
@@ -15,6 +15,7 @@ class CanvassService{
                     id
                     rc_number
                     date_requested
+                    is_referenced
                     requested_by{
                         id
                         firstname
@@ -43,38 +44,6 @@ class CanvassService{
             console.error(error);
             throw error
         }
-    }
-
-    async findOne(id: string): Promise<IFormResponseData | null> {
-        return null
-        // const query = `
-        //     query{
-        //         canvass(id: ${id}){
-        //             rc_number
-        //             id
-        //             purpose
-        //             notes
-        //             canvass_items{
-        //               item{
-        //                 description
-        //               }
-        //             }
-        //         }
-        //     }
-        // `;
-
-        // try {
-        //     const response = await sendRequest(query);
-        //     console.log('response', response)
-        //     const data = response.data.data
-        //     return {
-        //         canvasses: data.canvasses,
-        //         employees: data.employees
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        //     return null
-        // }
     }
 
     async create(payload: {data: ICreateCanvassDto}): Promise<ICanvass | null>{
@@ -112,37 +81,149 @@ class CanvassService{
 
     }
 
-    async update(payload: {id: string, data: ICanvass}): Promise<ICanvass | null>{
-        console.log('payload', payload)
-        const item = {} as ICanvass 
-        return item
-    }
+    async update(payload: {id: string, data: IUpdateCanvassDto}): Promise<ICanvass | null>{
+        console.log(this.service + 'update()', payload)
+        const { id, data } = payload
 
-    async remove(id: string): Promise<boolean> {
-        console.log('id', id)
-        return true
-    }
-
-    async initForm(): Promise<IFormResponseData> {
-        const query = `
-            query{
-                rc_number
-                brands{
+        const mutation = `
+            mutation UpdateCanvass($data: UpdateCanvassInput!) {
+                updateCanvass(id: "${id}", input: $data) {
                     id
-                    name
-                }
-                units{
-                    id
-                    name
-                }
-                employees{
-                    id
-                    firstname
-                    middlename
-                    lastname
+                    rc_number
+                    date_requested
+                    requested_by {
+                        id
+                        firstname
+                        middlename
+                        lastname
+                    }
                 }
             }
         `;
+
+        try {
+            const response = await sendRequest(mutation, {data});
+            console.log('response', response)
+            if(response.status === 200 && response.data.data){
+                return response.data.data.updateCanvass 
+            }
+            console.error('Error creating canvass')
+            return null
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    async remove(id: string): Promise<{success: boolean, msg: string}> {
+
+        const mutation = `
+            mutation {
+                removeCanvass(id: "${id}") {
+                    success
+                    msg
+                }
+            }
+        `;
+
+        try {
+            const response = await sendRequest(mutation);
+            console.log('response', response)
+            if(response.status === 200 && response.data.data){
+                return response.data.data.removeCanvass 
+            }
+            console.error('Error creating canvass')
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+
+        return {
+            success: false,
+            msg: "Failed to remove Canvass"
+        }
+    }
+
+    async initForm(id?: string): Promise<IFormResponseData> {
+
+        let query = ''
+
+        if(!id){
+            query = `
+                query{
+                    rc_number
+                    brands{
+                        id
+                        name
+                    }
+                    units{
+                        id
+                        name
+                    }
+                    employees{
+                        id
+                        firstname
+                        middlename
+                        lastname
+                    }
+                }
+            `;
+        }else{
+            query = `
+                query {
+                    rc_number
+                    canvass(id: "8cf4aaff-ce63-427e-8e89-e06d38b9c48e") {
+                        id
+                        rc_number
+                        date_requested
+                        requested_by{
+                            id
+                            firstname
+                            middlename
+                            lastname
+                        }
+                        noted_by{
+                            id
+                            firstname
+                            middlename
+                            lastname
+                        }
+                        purpose
+                        notes
+                        canvass_items {
+                            item {
+                            id
+                            description
+                            brand{
+                                id
+                                name
+                            }
+                            unit{
+                                id
+                                name
+                            }
+                            quantity
+                            }
+                        }
+                    }
+                    brands {
+                        id
+                        name
+                    }
+                    units {
+                        id
+                        name
+                    }
+                    employees {
+                        id
+                        firstname
+                        middlename
+                        lastname
+                    }
+                }
+                
+            `;
+        }
 
         try {
             const response = await sendRequest(query);
@@ -152,7 +233,8 @@ class CanvassService{
                 rc_number: data.rc_number,
                 brands: data.brands,
                 units: data.units,
-                employees: data.employees
+                employees: data.employees,
+                canvass: data.canvass ? data.canvass : {} 
             }
         } catch (error) {
             console.error(error);

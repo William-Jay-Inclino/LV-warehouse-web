@@ -62,7 +62,7 @@
                                                             <button @click="onClickUpdate(item)" class="btn btn-light btn-sm">
                                                                 <i class="fas fa-fw fa-pencil-alt"></i>
                                                             </button>
-                                                            <button @click="onDelete(item)" class="btn btn-light btn-sm">
+                                                            <button :disabled="item.is_referenced" @click="onDelete(item)" class="btn btn-light btn-sm custom-button">
                                                                 <i class="fas fa-fw fa-trash text-danger"></i>
                                                             </button>
                                                         </td>
@@ -128,13 +128,13 @@ const onDelete = async(item: ICanvass) => {
         reverseButtons: true,
         }).then( async(result) => {
         if (result.isConfirmed) {
-            const removed = await $module.onDelete(item.id)
+            const res = await $module.onDelete(item.id)
 
-            if(removed){
-                toast.success(item.rc_number + ' successfully removed!')
+            if(res.success){
+                toast.success(res.msg)
 
             }else{
-                toast.error('Failed to remove ' + item.rc_number)
+                toast.error(res.msg)
             }
         }
     });
@@ -148,3 +148,11 @@ const onClickUpdate = (data: ICanvass) => {
 
 
 </script>
+
+
+<style scoped>
+.btn.custom-button[disabled] {
+    cursor: not-allowed;
+    /* Override any hover styles or other styles for the disabled state */
+}
+</style>

@@ -34,7 +34,7 @@ export interface IEmployee {
 
     // fields that are set programmatically
 
-    label?: string 
+    fullname?: string 
 }
 
 export interface IClassification { 
@@ -125,11 +125,10 @@ export interface ICanvass {
     date_requested: string
     purpose: string
     notes: string
-    requested_by_id: string
     requested_by: IEmployee
-    noted_by_id: string 
     noted_by: IEmployee 
-    items: ICanvassItem[]
+    canvass_items: ICanvassItem[]
+    is_referenced: boolean
 }
 
 export interface IItem {

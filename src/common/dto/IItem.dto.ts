@@ -38,7 +38,7 @@ export interface IItemWithSupplier {
 
 export interface IITemDto {
     description: string
-    brand_id: string
+    brand_id: string | null
     unit_id: string
     quantity: number 
 }

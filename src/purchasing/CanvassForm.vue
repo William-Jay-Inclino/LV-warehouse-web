@@ -15,8 +15,13 @@
         <div class="row justify-content-center mt-5">
             <div class="col-11">
                 <div class="float-right">
-                    <button @click="onSubmit(1)" type="button" class="btn btn-success form-btn ml-2">Save & Finish</button>
-                    <button @click="onSubmit(2)" type="button" class="btn btn-primary form-btn ml-2">Save & Add Again</button>
+                    <button class="btn btn-secondary ml-2">Print</button>
+                    <span v-if="!$module.formIsEditMode">
+                        <button @click="onSubmit(1)" type="button" class="btn btn-primary ml-2">Save</button>
+                    </span>
+                    <span v-else>
+                        <button @click="onSubmit(1)" type="button" class="btn btn-primary ml-2">Update</button>
+                    </span>
                 </div>
             </div>
         </div>
@@ -92,7 +97,6 @@
     const router = useRouter()
     const $module = canvassStore()
 
-    $module.initForm()
     const errorMsg = ref('This field is required')
 
     const breadcrumbItems = ref([
@@ -118,12 +122,15 @@
     })
 
     onMounted( async() => {
+
+        let id = undefined
         const query = router.currentRoute.value.query
 
         if(query.id){
-            // intialize update form / populate form 
-            // await $module.initUpdateFormData(query.id as string)
+            id = query.id as string
         }
+        await $module.initForm(id)
+
     })
 
 
@@ -159,7 +166,7 @@
 
 
 <style scoped>
-    .form-btn{
-        width: 180px;
-    }
+    /* .form-btn{
+        width: 100px;
+    } */
 </style>
