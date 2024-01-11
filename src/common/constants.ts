@@ -58,8 +58,8 @@ export const approvalStatus = {
         label: 'Disapproved',
         color: 'danger',
     },
-    ['cancelled']: {
-        value: 'cancelled',
+    [APPROVAL_STATUS.CANCELLED]: {
+        value: APPROVAL_STATUS.CANCELLED,
         label: 'Cancelled',
         color: 'warning',
     },

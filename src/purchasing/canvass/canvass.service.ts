@@ -1,7 +1,7 @@
-import { ICanvass, IEmployee } from "../common/entities";
-import { sendRequest } from "../config/api";
-import { ICreateCanvassDto, IUpdateCanvassDto } from "./dto/canvass.dto";
-import { IFormResponseData } from "./entities/canvass.entity";
+import { ICanvass, IEmployee } from "../../common/entities";
+import { sendRequest } from "../../config/api";
+import { ICreateCanvassDto, IUpdateCanvassDto } from "./canvass.dto";
+import { IFormResponseData } from "./canvass.entities";
 
 class CanvassService{
 
@@ -56,6 +56,7 @@ class CanvassService{
                     id
                     rc_number
                     date_requested
+                    is_referenced
                     requested_by {
                         id
                         firstname
@@ -91,6 +92,7 @@ class CanvassService{
                     id
                     rc_number
                     date_requested
+                    is_referenced
                     requested_by {
                         id
                         firstname
@@ -172,7 +174,7 @@ class CanvassService{
             query = `
                 query {
                     rc_number
-                    canvass(id: "8cf4aaff-ce63-427e-8e89-e06d38b9c48e") {
+                    canvass(id: "${id}") {
                         id
                         rc_number
                         date_requested
@@ -234,7 +236,7 @@ class CanvassService{
                 brands: data.brands,
                 units: data.units,
                 employees: data.employees,
-                canvass: data.canvass ? data.canvass : {} 
+                canvass: data.canvass ? data.canvass : undefined
             }
         } catch (error) {
             console.error(error);

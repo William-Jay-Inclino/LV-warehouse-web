@@ -214,11 +214,16 @@ export interface IRV {
     date_requested: string
     work_order_no: string 
     work_order_date: string 
-    items: IRVItem[]
-    approvers: IRVApprover[]
-    is_cancelled: boolean
+    rv_items: IRVItem[]
+    rv_approvers: IRVApprover[]
     purpose: string
     notes: string
+    status: APPROVAL_STATUS
+    canceller_id: string | null
+    canceller: IEmployee | null
+    requested_by_id: string | null
+    requested_by: IEmployee | null
+    is_referenced: boolean
 
     // fields that are set programmatically
 
@@ -233,12 +238,16 @@ export interface IRVItem {
 
 export interface IRVApprover { 
     id: string 
-    approver_id: string 
     approver: IEmployee
-    rv_id: string 
-    rv: IRV
     date_approval: string
     notes: string 
+    status: APPROVAL_STATUS 
+    label: string 
+    order: number
+}
+
+export interface ICreateApproverDto { 
+    approver_id: string 
     status: APPROVAL_STATUS 
     label: string 
     order: number

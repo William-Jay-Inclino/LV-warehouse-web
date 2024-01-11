@@ -99,14 +99,14 @@ import CanvassTitle from "./components/CanvassTitle.vue";
 import { useToast } from "vue-toastification";
 import Swal from 'sweetalert2'
 import SearchFilter from "./components/CanvassSearchFilter.vue";
-import TablePagination from './components/TablePagination.vue'
-import TablePerPage from './components/TableSelectPerPage.vue'
-import { routeNames } from '../common';
+import TablePagination from '../components/TablePagination.vue'
+import TablePerPage from '../components/TableSelectPerPage.vue'
+import { routeNames } from '../../common';
 import { canvassStore } from './canvass.store';
-import { getFullname } from '../common'
+import { getFullname } from '../../common'
 import { useRouter } from 'vue-router';
 
-import { ICanvass } from "../common/entities";
+import { ICanvass } from "../../common/entities";
 
 const $module = canvassStore()
 const toast = useToast();

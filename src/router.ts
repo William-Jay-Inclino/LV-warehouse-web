@@ -24,25 +24,25 @@ const routes = [
     {
         path: '/purchasing/canvass',
         name: routeNames.purchasing_canvass,
-        component: () => import('./purchasing/Canvass.vue'),
+        component: () => import('./purchasing/canvass/Canvass.vue'),
     },
 
     {
         path: '/purchasing/canvass/form',
         name: routeNames.purchasing_canvass_form,
-        component: () => import('./purchasing/CanvassForm.vue'),
+        component: () => import('./purchasing/canvass/CanvassForm.vue'),
     },
 
     {
         path: '/purchasing/rv',
         name: routeNames.purchasing_rv,
-        component: () => import('./purchasing/RV.vue'),
+        component: () => import('./purchasing/rv/RV.vue'),
     },
 
     {
         path: '/purchasing/rv/form',
         name: routeNames.purchasing_rv_form,
-        component: () => import('./purchasing/RVForm.vue'),
+        component: () => import('./purchasing/rv/RVForm.vue'),
     },
 
     {

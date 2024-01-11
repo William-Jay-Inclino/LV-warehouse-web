@@ -17,10 +17,10 @@
                 <div class="float-right">
                     <button class="btn btn-secondary ml-2">Print</button>
                     <span v-if="!$module.formIsEditMode">
-                        <button @click="onSubmit(1)" type="button" class="btn btn-primary ml-2">Save</button>
+                        <button @click="onSubmit(1)" type="button" class="btn btn-success ml-2">Save</button>
                     </span>
                     <span v-else>
-                        <button @click="onSubmit(1)" type="button" class="btn btn-primary ml-2">Update</button>
+                        <button @click="onSubmit(1)" type="button" class="btn btn-success ml-2">Update</button>
                     </span>
                 </div>
             </div>
@@ -86,12 +86,12 @@
     import CanvassTitle from "./components/CanvassTitle.vue";
     import { onMounted, ref } from 'vue';
     import { onBeforeRouteLeave, useRouter } from 'vue-router';
-    import Breadcrumbs from '../common/components/Breadcrumbs.vue'
+    import Breadcrumbs from '../../common/components/Breadcrumbs.vue'
     import { useToast } from "vue-toastification";
-    import { routeNames } from '../common';
+    import { routeNames } from '../../common';
     import { canvassStore } from './canvass.store';
-    import { IITem } from '../common/dto/IItem.dto';
-    import Particulars from './components/Particulars.vue';
+    import { IITem } from '../../common/dto/IItem.dto';
+    import Particulars from './../components/Particulars.vue';
 
     const toast = useToast();
     const router = useRouter()

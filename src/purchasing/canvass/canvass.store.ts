@@ -1,12 +1,12 @@
 
 import { defineStore } from 'pinia'
-import { ICreateCanvassDto, IFormData, IUpdateCanvassDto } from './dto/canvass.dto'
+import { ICreateCanvassDto, IFormData, IUpdateCanvassDto } from './canvass.dto'
 import { computed, ref } from 'vue'
-import { IBrand, ICanvass, IEmployee, IUnit } from '../common/entities'
+import { IBrand, ICanvass, IEmployee, IUnit } from '../../common/entities'
 import moment from 'moment'
-import { getFullname, isValidDate } from '../common'
+import { getFullname, isValidDate } from '../../common'
 import { canvassService } from './canvass.service'
-import { IITem, IITemDto } from '../common/dto/IItem.dto'
+import { IITem, IITemDto } from '../../common/dto/IItem.dto'
 
 export const canvassStore = defineStore('canvass', () => {
 
@@ -234,7 +234,7 @@ export const canvassStore = defineStore('canvass', () => {
             data.noted_by_id = formData.noted_by!.id
             data.items = formData.items.map(i => {
                 const x = {} as IITemDto
-                x.brand_id = i.brand!.id
+                x.brand_id = i.brand ? i.brand.id : null
                 x.description = i.description
                 x.quantity = i.quantity
                 x.unit_id = i.unit!.id
@@ -262,7 +262,7 @@ export const canvassStore = defineStore('canvass', () => {
 
         return {
             success: false,
-            msg: 'Failed to save Canvass!'
+            msg: 'Failed to save Canvass. Please refresh the page and try again'
         }
     }
 
