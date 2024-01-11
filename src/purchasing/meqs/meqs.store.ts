@@ -2,7 +2,7 @@
 import { defineStore } from 'pinia'
 import { ICreateMEQSDto, IFormData, IUpdateMEQSDto } from './meqs.dto'
 import { computed, ref } from 'vue'
-import { IBrand, IRV, IUnit, APPROVAL_STATUS, ICreateApproverDto, IMEQS, ISupplier, ISPR, IJO, ISupplierItemDto, IEmployee } from '../../common/entities'
+import { IBrand, IRV, IUnit, APPROVAL_STATUS, ICreateApproverDto, IMEQS, ISupplier, ISPR, IJO, ISupplierItemDto, IEmployee, REQUEST_TYPE } from '../../common/entities'
 import moment from 'moment'
 import { getFullname, isValidDate } from '../../common'
 import { meqsService } from './meqs.service'
@@ -20,13 +20,15 @@ export const meqsStore = defineStore('meqs', () => {
         rv: null,
         spr: null,
         meqs_number: '',
-        request_type: null,
+        request_type: REQUEST_TYPE.RV,
+        requested_by: null,
         meqs_date: today,
         purpose: '',
         notes: '',
         status: APPROVAL_STATUS.PENDING,
         items: [],
         approvers: [],
+        suppliers: []
     }
 
     const _formErrorsInitial = {
@@ -60,6 +62,7 @@ export const meqsStore = defineStore('meqs', () => {
     })
     const units = computed( () => _units.value)
     const brands = computed( () => _brands.value)
+    const suppliers = computed( () => _suppliers.value)
     const rvs = computed( () => _rvs.value)
     const jos = computed( () => _jos.value)
     const sprs = computed( () => _sprs.value)
@@ -155,6 +158,12 @@ export const meqsStore = defineStore('meqs', () => {
             return i
         }) 
 
+        let requested_by: IEmployee | null = null
+        
+        if(data.rv){
+            requested_by = data.rv.requested_by
+        }
+
         formData.value = {
             id: data.id,
             jo: data.jo || null,
@@ -162,12 +171,14 @@ export const meqsStore = defineStore('meqs', () => {
             spr: data.spr || null,
             meqs_number: data.meqs_number,
             request_type: data.request_type,
+            requested_by,
             meqs_date: meqs_date,
             purpose: data.purpose,
             notes: data.notes,
             status: data.status,
             items,
-            approvers
+            approvers,
+            suppliers: []
         }
     }
 
@@ -422,6 +433,7 @@ export const meqsStore = defineStore('meqs', () => {
         sprs,
         defaultApprovers,
         employees,
+        suppliers,
         onAddItem,
         onRemoveItem,
         setUnits,

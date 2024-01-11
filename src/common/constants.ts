@@ -1,4 +1,4 @@
-import { APPROVAL_STATUS, DEPARTMENT_STATUS } from "./entities/common.enums"
+import { APPROVAL_STATUS, DEPARTMENT_STATUS, REQUEST_TYPE } from "./entities/common.enums"
 
 export const routeNames = {
     dashboard: 'dashboard.route',
@@ -63,4 +63,19 @@ export const approvalStatus = {
         label: 'Cancelled',
         color: 'warning',
     },
+}
+
+export const requestType = {
+    [REQUEST_TYPE.JO]: {
+        value: REQUEST_TYPE.JO,
+        label: 'JO'
+    },
+    [REQUEST_TYPE.RV]: {
+        value: REQUEST_TYPE.RV,
+        label: 'RV'
+    },
+    [REQUEST_TYPE.SPR]: {
+        value: REQUEST_TYPE.SPR,
+        label: 'SPR'
+    }
 }

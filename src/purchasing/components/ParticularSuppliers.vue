@@ -9,12 +9,15 @@
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
-                        <th width="5%">No.</th>
-                        <th width="30%">Description</th>
-                        <th width="20%">Brand</th>
-                        <th width="20%">Unit</th>
-                        <th width="15%">Quantity</th>
-                        <th width="10%" class="text-center">
+                        <th>No.</th>
+                        <th>Description</th>
+                        <th>Brand</th>
+                        <th>Unit</th>
+                        <th>Quantity</th>
+                        <th v-for="supplier in formSuppliers">
+                            {{ supplier.name }}
+                        </th>
+                        <th class="text-center">
                             <i class="fas fa-fw fa-cogs"></i>
                         </th>
                     </thead>
@@ -26,7 +29,7 @@
                                 <small class="form-text text-danger" v-if="item.invalid.description"> {{ errorMsg }} </small>
                             </td>
                             <td>
-                                <select class="form-control" v-model="item.brand">
+                                <select class="form-control" v-model="item.brand" style="width: 150px;">
                                     <option value="null">n/a</option>
                                     <option :value="i" :key="i.id" v-for="i in brands">
                                         {{ i.name }}
@@ -34,7 +37,7 @@
                                 </select>
                             </td>
                             <td>
-                                <select class="form-control" v-model="item.unit">
+                                <select class="form-control" v-model="item.unit" style="width: 150px;">
                                     <option :value="i" :key="i.id" v-for="i in units">
                                         {{ i.name }}
                                     </option>
@@ -42,8 +45,11 @@
                                 <small class="form-text text-danger" v-if="item.invalid.unit"> {{ errorMsg }} </small>
                             </td>
                             <td>
-                                <input type="number" class="form-control" v-model="item.quantity">
+                                <input type="number" class="form-control" v-model="item.quantity" style="width: 60px;">
                                 <small class="form-text text-danger" v-if="item.invalid.quantity"> {{ errorMsg }} </small>
+                            </td>
+                            <td v-for="itemSupplier in item.supplier_items">
+                                <input type="text" class="form-control" v-model="itemSupplier.price" style="width: 100px;">
                             </td>
                             <td class="text-center">
                                 <button @click="onRemoveItem(i)" class="btn btn-light">
@@ -54,6 +60,7 @@
                         <tr>
                             <td class="text-center" colspan="6">
                                 <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Item</button>
+                                <button @click="onAddSupplier()" class="btn btn-secondary btn-sm ml-3">Add Supplier</button>
                             </td>
                         </tr>
                     </tbody>
@@ -70,21 +77,32 @@
 
 
 <script setup lang="ts">
-import { IBrand, IUnit } from '../../common/entities';
-import { ref } from 'vue';
-import { IITem } from '../../common/dto/IItem.dto';
+import { IBrand, ISupplier, IUnit } from '../../common/entities';
+import { computed, ref } from 'vue';
+import { IITem, IItemWithSupplier } from '../../common/dto/IItem.dto';
+import Swal from 'sweetalert2';
+import 'animate.css';
 
+const emit = defineEmits(['add-item', 'remove-item', 'add-supplier'])
 
-const emit = defineEmits(['add-item', 'remove-item'])
-
-defineProps<{
-    items: IITem[],
+const props = defineProps<{
+    items: IItemWithSupplier[],
     errorForm: boolean,
     brands: IBrand[],
-    units: IUnit[]
+    units: IUnit[],
+    suppliers: ISupplier[],
+    formSuppliers: ISupplier[]
 }>()
 
 const errorMsg = ref('Invalid field')
+
+const supplierOptions = computed(() =>
+  props.suppliers.reduce((options, supplier) => {
+    options[supplier.id] = `${supplier.name}`;
+    return options;
+  }, {} as { [key: string]: string })
+);
+
 
 const onRemoveItem = (indx: number) => emit('remove-item', indx)
 
@@ -103,6 +121,56 @@ const onAddItem = () => {
     
     emit('add-item', item)
 }
+
+const onAddSupplier = () => {
+    Swal.fire({
+        title: 'Add Supplier',
+        icon: "info",
+        input: 'select',
+        inputOptions: supplierOptions.value,
+        showCancelButton: true,
+        confirmButtonText: 'Add',
+        cancelButtonText: 'Cancel',
+        allowOutsideClick: false,
+        reverseButtons: true,
+        confirmButtonColor: "#1cc88a",
+        showClass: {
+            popup: `
+            animate__animated
+            animate__fadeInUp
+            animate__faster
+            `
+        },
+        hideClass: {
+            popup: `
+            animate__animated
+            animate__fadeOutDown
+            animate__faster
+            `
+        },
+        preConfirm: (selectedSupplierId) => {
+        if (!selectedSupplierId) {
+            Swal.showValidationMessage('Please select a supplier');
+        }
+        return selectedSupplierId;
+        }
+    }).then((result: any) => {
+        if (result.isConfirmed) {
+            const selectedSupplierId = result.value;
+            console.log('You selected supplier ID: ' + selectedSupplierId);
+
+            const supplier = props.suppliers.find(i => i.id === selectedSupplierId)
+
+            if(!supplier){
+                console.error('supplier not found with id of ', selectedSupplierId)
+            }
+
+            emit('add-supplier', {...supplier})
+
+        }
+    });
+};
+
 
 
 </script>
