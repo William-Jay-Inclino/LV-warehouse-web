@@ -48,13 +48,13 @@ const routes = [
     {
         path: '/purchasing/meqs',
         name: routeNames.purchasing_meqs,
-        component: () => import('./purchasing/MEQS.vue'),
+        component: () => import('./purchasing/meqs/MEQS.vue'),
     },
 
     {
         path: '/purchasing/meqs/form',
         name: routeNames.purchasing_meqs_form,
-        component: () => import('./purchasing/MEQSFORM.vue'),
+        component: () => import('./purchasing/meqs/MEQSFORM.vue'),
     },
 
     {

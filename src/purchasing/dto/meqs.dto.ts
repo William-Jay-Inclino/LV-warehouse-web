@@ -6,7 +6,7 @@ export interface IFormData{
     jo?: IJO | null
     rv?: IRV | null
     spr?: ISPR | null
-    reference_type: REQUEST_TYPES | null
+    request_type: REQUEST_TYPES | null
     meqs_date: string 
     meqs_number: string
     purpose: string
@@ -18,7 +18,7 @@ export interface ICreateMEQSDto {
     jo?: IJO
     rv?: IRV
     spr?: ISPR
-    reference_type: REQUEST_TYPES 
+    request_type: REQUEST_TYPES 
     meqs_date: string 
     purpose: string
     items: IITemDto[]
@@ -29,7 +29,7 @@ export interface IUpdateMEQSDto{
     jo?: IJO
     rv?: IRV
     spr?: ISPR
-    reference_type?: REQUEST_TYPES 
+    request_type?: REQUEST_TYPES 
     meqs_date?: string 
     purpose?: string
 }

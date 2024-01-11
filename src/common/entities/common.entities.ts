@@ -1,4 +1,4 @@
-import { APPROVAL_STATUS, DEPARTMENT_STATUS, DIVISION_STATUS, EMPLOYEE_POSITION, REQUEST_TYPES } from "./common.enums";
+import { APPROVAL_STATUS, DEPARTMENT_STATUS, DIVISION_STATUS, EMPLOYEE_POSITION, REQUEST_TYPE } from "./common.enums";
 
 
 // ============================= START DATA MANAGEMENT =============================
@@ -151,11 +151,13 @@ export interface ICanvassItem {
 }
 
 export interface ISupplierItem {
-    id: string 
-    item_id: string 
     item: IItem
-    supplier_id: string 
     supplier: ISupplier
+    price: number
+}
+
+export interface ISupplierItemDto {
+    supplier_id: string 
     price: number
 }
 
@@ -297,16 +299,23 @@ export interface ISPRApprover {
 
 export interface IMEQS {
     id: string
-    canvass_id: string 
-    canvass: ICanvass
-    meqs_number: string
-    reference_type: REQUEST_TYPES
+    jo_id: string | null 
+    jo: IJO | null
+    rv_id: string | null
+    rv: IRV | null
+    spr_id: string | null 
+    spr: ISPR | null
+    meqs_number: string 
+    request_type: REQUEST_TYPE
     meqs_date: string
     purpose: string
-    is_cancelled: boolean
-
-    items: IMEQSItem[]
-    approvers: IMEQSApprover[]
+    notes: string
+    status: APPROVAL_STATUS
+    canceller_id: string | null 
+    canceller: IEmployee | null
+    meqs_approvers: IMEQSApprover[]
+    meqs_items: IMEQSItem[]
+    pos?: IPO[]
 }
 
 export interface IMEQSItem {

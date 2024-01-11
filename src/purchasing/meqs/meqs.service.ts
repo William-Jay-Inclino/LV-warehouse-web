@@ -1,42 +1,42 @@
-import { ICanvass, IEmployee, IRV } from "../../common/entities";
+import { IEmployee, IMEQS, IRV } from "../../common/entities";
 import { sendRequest } from "../../config/api";
-import { ICreateRVDto, IUpdateRVDto } from "./rv.dto";
-import { IFormResponseData } from "./rv.entities";
+import { ICreateMEQSDto, IUpdateMEQSDto } from "./meqs.dto";
+import { IFormResponseData } from "./meqs.entities";
 
-class RvService{
+class MeqsService{
 
     // private endpoint = '/canvass/'
-    private service = 'RVService: '
+    private service = 'MeqsService: '
 
-    async findAll(): Promise<{rvs: IRV[], employees: IEmployee[], canvasses: ICanvass[]}> {
+    async findAll(): Promise<{rvs: IRV[], meqs: IMEQS[], employees: IEmployee[]}> {
         const query = `
-            query{
-                canvasses{
-                    rc_number
+            query {
+                rvs {
+                rv_number
                 }
-                rvs{
-                    id
+                meqs {
+                id
+                meqs_number
+                rv {
                     rv_number
-                    canvass{
-                        rc_number
+                    requested_by {
+                    id
+                    firstname
+                    middlename
+                    lastname
                     }
-                    date_requested
-                    is_referenced
-                    status
-                    requested_by{
-                        id
-                        firstname
-                        middlename
-                        lastname
-                    }
-                },
-                employees{
-                  id
-                  firstname
-                  middlename
-                  lastname
+                }
+                meqs_date
+                status
+                }
+                employees {
+                id
+                firstname
+                middlename
+                lastname
                 }
             }
+          
         `;
 
         try {
@@ -45,8 +45,8 @@ class RvService{
             const data = response.data.data
             return {
                 rvs: data.rvs,
-                employees: data.employees,
-                canvasses: data.canvasses
+                meqs: data.meqs,
+                employees: data.employees
             }
         } catch (error) {
             console.error(error);
@@ -54,21 +54,21 @@ class RvService{
         }
     }
 
-    async create(payload: {data: ICreateRVDto}): Promise<IRV | null>{
+    async create(payload: {data: ICreateMEQSDto}): Promise<IMEQS | null>{
         console.log(this.service + 'create()', payload)
         const { data } = payload
 
         const mutation = `
-            mutation CreateRv($data: CreateRvInput!) {
-                createRv(input: $data) {
+            mutation CreateMeqs($data: CreateMeqsInput!) {
+                createMeqs(input: $data) {
                     id
-                    rv_number
-                    canvass{
-                        rc_number
+                    meqs_number
+                    rv{
+                        rv_number
                     }
                     date_requested
-                    is_referenced
-                    requested_by {
+                    status
+                    requested_by{
                         id
                         firstname
                         middlename
@@ -84,7 +84,7 @@ class RvService{
             if(response.status === 200 && response.data.data){
                 return response.data.data.createRv 
             }
-            console.error('Error creating rv')
+            console.error('Error creating meqs')
             return null
         } catch (error) {
             console.error(error);
@@ -93,21 +93,21 @@ class RvService{
 
     }
 
-    async update(payload: {id: string, data: IUpdateRVDto}): Promise<IRV | null>{
+    async update(payload: {id: string, data: IUpdateMEQSDto}): Promise<IMEQS | null>{
         console.log(this.service + 'update()', payload)
         const { id, data } = payload
 
         const mutation = `
-            mutation UpdateRv($data: UpdateRvInput!) {
-                updateRv(id: "${id}", input: $data) {
+            mutation UpdateMeqs($data: UpdateMeqsInput!) {
+                updateMeqs(id: "${id}", input: $data) {
                     id
-                    rv_number
-                    canvass{
-                        rc_number
+                    meqs_number
+                    rv{
+                        rv_number
                     }
                     date_requested
-                    is_referenced
-                    requested_by {
+                    status
+                    requested_by{
                         id
                         firstname
                         middlename
@@ -123,7 +123,7 @@ class RvService{
             if(response.status === 200 && response.data.data){
                 return response.data.data.updateRv 
             }
-            console.error('Error updating rv')
+            console.error('Error creating meqs')
             return null
         } catch (error) {
             console.error(error);
@@ -135,7 +135,7 @@ class RvService{
 
         const mutation = `
             mutation {
-                removeRv(id: "${id}") {
+                removeMeqs(id: "${id}") {
                     success
                     msg
                 }
@@ -148,7 +148,7 @@ class RvService{
             if(response.status === 200 && response.data.data){
                 return response.data.data.removeRv 
             }
-            console.error('Error removing rv')
+            console.error('Error removing meqs')
         } catch (error) {
             console.error(error);
             throw error;
@@ -156,7 +156,7 @@ class RvService{
 
         return {
             success: false,
-            msg: "Failed to remove RV"
+            msg: "Failed to remove MEQS"
         }
     }
 
@@ -167,10 +167,10 @@ class RvService{
         if(!id){
             query = `
                 query {
-                    rv_number
-                    canvasses{
+                    meqs_number
+                    rvs{
                         id
-                        rc_number
+                        rv_number
                         purpose
                         notes
                         is_referenced
@@ -180,23 +180,23 @@ class RvService{
                           middlename
                           lastname
                         }
-                        canvass_items{
+                        rv_items{
                           item{
                             id
                             description
                             brand{
                                 id
-                              name
+                                name
                             }
                             unit{
                                 id
-                              name
+                                name
                             }
                             quantity
                           }
                         }
                     }
-                    default_rv_approvers{
+                    default_meqs_approvers{
                         id
                         approver_id
                         approver{
@@ -213,14 +213,12 @@ class RvService{
                         name
                     }
                     units {
-                     id
+                        id
                         name
                     }
-                    employees {
+                    suppliers{
                         id
-                        firstname
-                        middlename
-                        lastname
+                        name
                     }
                 }
               
@@ -228,8 +226,7 @@ class RvService{
         }else{
             query = `
                 query {
-                    rv_number
-                    default_rv_approvers{
+                    default_meqs_approvers{
                         id
                         approver_id
                         approver{
@@ -241,50 +238,43 @@ class RvService{
                         label
                         order
                     }
-                    rv(id: "${id}"){
+                    meq(id: "${id}"){
                         id
-                        canvass{
+                        rv{
                             id
-                            rc_number
+                            rv_number
+                            requested_by{
+                                id
+                                firstname
+                                middlename
+                                lastname
+                            }
                         }
-                        rv_number
-                        date_requested
-                        requested_by{
-                          id
-                          firstname
-                          middlename
-                          lastname
-                        }
-                        supervisor{
-                          id
-                          firstname
-                          middlename
-                          lastname
-                        }
-                        classification{
-                          id
-                          name
-                        }
-                        work_order_no
-                        work_order_date
+                        meqs_number
+                        meqs_date
                         purpose
                         notes
-                        rv_items{
-                          item{
-                            id
-                            description
-                            brand{
+                        meqs_items{
+                            item{
+                              id
+                              description
+                              brand{
+                                name
+                              }
+                              unit{
+                                name
+                              }
+                              supplier_items{
                                 id
-                              name
+                                item_id
+                                supplier{
+                                  name
+                                }
+                                price
+                              }
                             }
-                            unit{
-                                id
-                              name
-                            }
-                            quantity
-                          }
                         }
-                        rv_approvers{
+                        meqs_approvers{
                           id
                           approver{
                             id
@@ -308,11 +298,9 @@ class RvService{
                         id
                         name
                     }
-                    employees {
+                    suppliers{
                         id
-                        firstname
-                        middlename
-                        lastname
+                        name
                     }
                 }
                 
@@ -324,13 +312,15 @@ class RvService{
             console.log('response', response)
             const data = response.data.data
             return {
-                rv_number: data.rv_number,
+                meqs_number: data.meqs_number,
                 brands: data.brands,
                 units: data.units,
-                employees: data.employees,
-                rv: data.rv ? data.rv : undefined,
-                default_approvers: data.default_rv_approvers,
-                canvasses: data.canvasses
+                meqs: data.meq ? data.meq : undefined,
+                default_approvers: data.default_meqs_approvers,
+                suppliers: data.suppliers,
+                rvs: data.rvs ? data.rvs : [],
+                jos: data.jos ? data.jos : [],
+                sprs: data.sprs ? data.sprs : [],
             }
         } catch (error) {
             console.error(error);
@@ -340,4 +330,4 @@ class RvService{
 
 }
 
-export const rvService = new RvService()
+export const meqsService = new MeqsService()
