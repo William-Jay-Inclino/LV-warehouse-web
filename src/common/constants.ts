@@ -14,7 +14,7 @@ export const routeNames = {
     data_management_brand_form: 'data_management_brand_form.route',
 }
 
-export const supervisorLabel = 'Imd. Sup.'
+export const supervisorLabel = 'Immediate Supervisor'
 
 export const departmentStatus = {
     [DEPARTMENT_STATUS.ACTIVE]: {

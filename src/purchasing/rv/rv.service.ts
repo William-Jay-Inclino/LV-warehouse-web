@@ -17,8 +17,12 @@ class RvService{
                 rvs{
                     id
                     rv_number
+                    canvass{
+                        rc_number
+                    }
                     date_requested
                     is_referenced
+                    status
                     requested_by{
                         id
                         firstname
@@ -165,9 +169,11 @@ class RvService{
                 query {
                     rv_number
                     canvasses{
+                        id
                         rc_number
                         purpose
                         notes
+                        is_referenced
                         requested_by{
                           id
                           firstname
@@ -179,11 +185,14 @@ class RvService{
                             id
                             description
                             brand{
+                                id
                               name
                             }
                             unit{
+                                id
                               name
                             }
+                            quantity
                           }
                         }
                     }
@@ -233,8 +242,10 @@ class RvService{
                         order
                     }
                     rv(id: "${id}"){
+                        id
                         canvass{
-                          rc_number
+                            id
+                            rc_number
                         }
                         rv_number
                         date_requested
@@ -263,9 +274,11 @@ class RvService{
                             id
                             description
                             brand{
+                                id
                               name
                             }
                             unit{
+                                id
                               name
                             }
                             quantity

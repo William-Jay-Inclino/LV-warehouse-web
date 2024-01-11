@@ -45,9 +45,11 @@
                                             <table class="table table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th width="30%">RV Number</th>
-                                                        <th width="30%">Requisitioner</th>
-                                                        <th width="30%">Date</th>
+                                                        <th>RV Number</th>
+                                                        <th>RC Number</th>
+                                                        <th>Requisitioner</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
                                                         <th class="text-center">
                                                             <i class="fas fa-fw fa-cogs"></i>
                                                         </th>
@@ -56,8 +58,14 @@
                                                 <tbody>
                                                     <tr v-for="item in $module.items">
                                                         <td> {{ item.rv_number }} </td>
+                                                        <td> {{ item.canvass.rc_number }} </td>
                                                         <td> {{ getFullname(item.requested_by!.firstname, item.requested_by!.middlename, item.requested_by!.lastname) }} </td>
                                                         <td> {{ item.date_requested }} </td>
+                                                        <td class="text-center align-middle"> 
+                                                            <span :class="{[`badge-${approvalStatus[item.status].color}`]: true}" class="badge badge-pill text-white"> 
+                                                                {{ approvalStatus[item.status].label }} 
+                                                            </span> 
+                                                        </td>
                                                         <td class="text-center">
                                                             <button @click="onClickUpdate(item)" class="btn btn-light btn-sm">
                                                                 <i class="fas fa-fw fa-pencil-alt"></i>
@@ -105,7 +113,7 @@ import { routeNames } from '../../common';
 import { rvStore } from './rv.store';
 import { getFullname } from '../../common'
 import { useRouter } from 'vue-router';
-
+import { approvalStatus } from '../../common/constants'
 import { IRV } from "../../common/entities";
 
 const $module = rvStore()
@@ -143,7 +151,7 @@ const onDelete = async(item: IRV) => {
 
 
 const onClickUpdate = (data: IRV) => {
-    router.push({name: routeNames.purchasing_canvass_form, query: {id: data.id}})
+    router.push({name: routeNames.purchasing_rv_form, query: {id: data.id}})
 }
 
 

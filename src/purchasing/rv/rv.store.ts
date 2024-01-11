@@ -4,7 +4,7 @@ import { ICreateRVDto, IFormData, IUpdateRVDto } from './rv.dto'
 import { computed, ref, watch } from 'vue'
 import { IBrand, IRV, IEmployee, IUnit, APPROVAL_STATUS, ICreateApproverDto, ICanvass } from '../../common/entities'
 import moment from 'moment'
-import { getFullname, isValidDate } from '../../common'
+import { getFullname, isValidDate, supervisorLabel } from '../../common'
 import { rvService } from './rv.service'
 import { IITem, IITemDto } from '../../common/dto/IItem.dto'
 import { IDefaultApprover } from '../entities/purchasing.entity'
@@ -67,21 +67,30 @@ export const rvStore = defineStore('rv', () => {
 
     const formIsEditMode = computed( (): boolean => !!formData.value.id)
 
-    const formDataRequestedById = computed( (): string => formData.value.requested_by ? formData.value.requested_by.id : '' )
+    const formDataSupervisorId = computed( (): string => formData.value.supervisor ? formData.value.supervisor.id : '' )
 
 
 
     // watchers 
 
-    watch(formDataRequestedById, (val) => {
+    watch(formDataSupervisorId, (val) => {
 
-        if(val.trim() === ''){
-            const indx = defaultApprovers.value.findIndex(i => i.order === 1)
+        console.log('=== watch: formDataSupervisorId ===', val)
 
-            if(indx !== -1){
-                defaultApprovers.value.splice(indx, 1)
-            }
+        const indx = defaultApprovers.value.findIndex(i => i.order === 1)
+
+        if(indx !== -1){
+            defaultApprovers.value.splice(indx, 1)
         }
+
+        if(!formData.value.supervisor) return 
+
+        const x = {} as IDefaultApprover 
+        x.approver = formData.value.supervisor
+        x.label = supervisorLabel
+        x.order = 1
+
+        defaultApprovers.value.unshift(x)
 
     })
 
@@ -289,7 +298,7 @@ export const rvStore = defineStore('rv', () => {
             data.rv_number = formData.rv_number
             data.date_requested = formData.date_requested
             data.work_order_no = formData.work_order_no
-            data.work_order_date = formData.work_order_date
+            data.work_order_date = formData.work_order_date ? formData.work_order_date : null
             data.purpose = formData.purpose
             data.notes = formData.notes
             data.status = formData.status
@@ -303,12 +312,12 @@ export const rvStore = defineStore('rv', () => {
                 return x
             })
 
-            data.approvers = formData.approvers.map(i => {
+            data.approvers = defaultApprovers.value.map(i => {
                 const x = {} as ICreateApproverDto 
                 x.approver_id = i.approver.id
                 x.label = i.label
                 x.order = i.order
-                x.status = i.status
+                x.status = APPROVAL_STATUS.PENDING
 
                 return x
             })

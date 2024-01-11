@@ -14,20 +14,6 @@
 
         <div class="row justify-content-center mt-5">
             <div class="col-9">
-                <div class="float-right">
-                    <button class="btn btn-secondary ml-2">Print</button>
-                    <span v-if="!$module.formIsEditMode">
-                        <button @click="onSubmit(1)" type="button" class="btn btn-success ml-2">Save</button>
-                    </span>
-                    <span v-else>
-                        <button @click="onSubmit(1)" type="button" class="btn btn-primary ml-2">Update</button>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center mt-5">
-            <div class="col-9">
 
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
@@ -37,14 +23,23 @@
                     <div class="card-body">
 
                         <div class="row">
-                            <div class="col">
+                            <div class="col-4">
                                 <div class="form-group">
                                     <label>RV Number</label>
                                     <input type="text" class="form-control" :value="$module.formData.rv_number" disabled>
                                 </div>
                                 <div class="form-group">
                                     <label>RC Number</label>
-                                    <v-select label="rc_number" v-model="$module.formData.canvass" :options="$module.canvasses" @option:selected="onChangeRcNo()"></v-select>
+                                    <v-select
+                                      label="rc_number"
+                                      v-model="$module.formData.canvass"
+                                      :options="$module.canvasses"
+                                      @option:selected="onChangeRcNo()"
+                                      :selectable="(option: ICanvass) => !option.is_referenced"
+                                      v-if="!$module.formIsEditMode"
+                                    >
+                                    </v-select>
+                                    <input type="text" class="form-control" :value="$module.formData.canvass?.rc_number" readonly v-else>
                                 </div>
                                 <div class="form-group">
                                     <label>Date</label>
@@ -52,8 +47,9 @@
                                     <small class="form-text text-danger" v-if="$module.formErrors.date_requested"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Requested By</label>
-                                    <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by" @option:selected="onChangeRequestedBy()"></v-select>
+                                    <label>Requisitioner</label>
+                                    <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by"></v-select>
+                                    <!-- <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by" @option:selected="onChangeRequestedBy()"></v-select> -->
                                     <small class="form-text text-danger" v-if="$module.formErrors.requested_by"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
@@ -66,10 +62,30 @@
                                     <textarea class="form-control" rows="3" v-model="$module.formData.notes"></textarea>
                                     <small class="text-muted">optional</small>
                                 </div>
+                                <div class="form-group">
+                                    <label>Immediate Supervisor</label>
+                                    <v-select label="fullname" :options="$module.employees" v-model="$module.formData.supervisor"></v-select>
+                                    <small class="form-text text-danger" v-if="$module.formErrors.supervisor"> {{ errorMsg }} </small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Work Order Number</label>
+                                    <input type="text" class="form-control" v-model="$module.formData.work_order_no">
+                                    <small class="form-text text-muted"> optional </small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Work Order Date</label>
+                                    <input type="date" class="form-control" v-model="$module.formData.work_order_date">
+                                    <small class="form-text text-muted"> optional </small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Classification</label>
+                                    <input type="text" class="form-control" readonly>
+                                </div>
                             </div>
 
-                            <div class="col">
-                                <CreateApprovers :approvers="$module.defaultApprovers"/>
+                            <div class="col-8">
+                                <UpdateApprovers :approvers="$module.formData.approvers" v-if="$module.formIsEditMode"/>
+                                <CreateApprovers :approvers="$module.defaultApprovers" v-else/>
                             </div>
 
                         </div>
@@ -92,6 +108,22 @@
             </div>
         </div>
 
+        <div class="row justify-content-center mt-2">
+            <div class="col-9">
+                <div class="float-right">
+                    <button @click="onClickBack" class="btn btn-primary ml-2">Back</button>
+                    <button class="btn btn-secondary ml-2">Print</button>
+                    <button v-if="$module.formIsEditMode" class="btn btn-danger ml-2">Cancel</button>
+                    <span v-if="!$module.formIsEditMode">
+                        <button @click="onSubmit(1)" type="button" class="btn btn-success ml-2">Save</button>
+                    </span>
+                    <span v-else>
+                        <button @click="onSubmit(1)" type="button" class="btn btn-success ml-2">Update</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
 
   </div>
 
@@ -104,12 +136,13 @@
     import { onBeforeRouteLeave, useRouter } from 'vue-router';
     import Breadcrumbs from '../../common/components/Breadcrumbs.vue'
     import { useToast } from "vue-toastification";
-    import { routeNames } from '../../common';
+    import { getFullname, routeNames } from '../../common';
     import { rvStore } from './rv.store';
     import { IITem } from '../../common/dto/IItem.dto';
     import Particulars from './../components/Particulars.vue';
     import CreateApprovers from '../components/CreateApprovers.vue'
-import { IDefaultApprover } from "../entities/purchasing.entity";
+    import UpdateApprovers from '../components/UpdateApprovers.vue'
+    import { ICanvass } from "../../common/entities";
 
     const toast = useToast();
     const router = useRouter()
@@ -167,7 +200,7 @@ import { IDefaultApprover } from "../entities/purchasing.entity";
         toast.success(res.msg)
 
         if(action === 1){
-            router.push({name: routeNames.purchasing_canvass})
+            router.push({name: routeNames.purchasing_rv})
         }
 
     }
@@ -179,6 +212,12 @@ import { IDefaultApprover } from "../entities/purchasing.entity";
         console.log('onChangeRcNo()')
         
         if($module.formData.canvass){
+
+            const requestedBy = {...$module.formData.canvass.requested_by}
+            requestedBy.fullname = getFullname(requestedBy.firstname, requestedBy.middlename, requestedBy.lastname)
+
+            $module.formData.requested_by = requestedBy
+
             $module.formData.purpose = $module.formData.canvass.purpose
             $module.formData.notes = $module.formData.canvass.notes
 
@@ -202,24 +241,8 @@ import { IDefaultApprover } from "../entities/purchasing.entity";
         }
     }
 
-    const onChangeRequestedBy = () => {
-        console.log('onChangeRequestedBy()')
-        
-        const indx = $module.defaultApprovers.findIndex(i => i.order === 1)
-
-        if(indx !== -1){
-            $module.defaultApprovers.splice(indx, 1)
-        }
-
-        if($module.formData.requested_by){
-
-            const x = {} as IDefaultApprover 
-            x.approver = $module.formData.requested_by
-            x.label = 'Imd. Sup.'
-            x.order = 1
-
-            $module.defaultApprovers.unshift(x)
-        }
+    const onClickBack = () => {
+        router.push({name: routeNames.purchasing_rv})
     }
 
 </script>

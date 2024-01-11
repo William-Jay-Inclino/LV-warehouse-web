@@ -3,7 +3,7 @@
     <div class="container">
         <h6 class="m-0 font-weight-bold"> Approvers </h6>
         <div class="table-responsive mt-2">
-            <table class="table table-hover">
+            <table class="table table-sm">
                 <thead>
                     <th>Order</th>
                     <th>Position</th>

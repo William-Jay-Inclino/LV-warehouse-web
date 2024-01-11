@@ -7,7 +7,7 @@ console.log('apiUrl', apiUrl)
 export const sendRequest = async (queryOrMutation: string, variables?: Record<string, any>): Promise<AxiosResponse> => {
     console.log('sendRequest()');
     console.log('queryOrMutation', queryOrMutation)
-    console.log('variables', JSON.stringify(variables))
+    console.log('=== data ===', JSON.stringify(variables))
     
     try {
         const requestData = {
