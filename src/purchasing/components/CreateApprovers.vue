@@ -1,10 +1,10 @@
 <template>
 
-    <div class="container">
+    <div>
         <h6 class="m-0 font-weight-bold"> Approvers </h6>
         <div class="table-responsive mt-2">
-            <table class="table table-sm">
-                <thead>
+            <table class="table table-bordered">
+                <thead class="bg-secondary text-white">
                     <th>Order</th>
                     <th>Position</th>
                     <th>Name</th>

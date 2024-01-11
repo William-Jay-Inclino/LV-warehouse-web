@@ -23,13 +23,14 @@
                     <div class="card-body">
 
                         <div class="row">
-                            <div class="col-4">
+
+                            <div class="col-6">
                                 <div class="form-group">
-                                    <label>RV Number</label>
+                                    <label>RV Number <span class="text-danger">*</span> </label>
                                     <input type="text" class="form-control" :value="$module.formData.rv_number" disabled>
                                 </div>
                                 <div class="form-group">
-                                    <label>RC Number</label>
+                                    <label>RC Number <span class="text-danger">*</span></label>
                                     <v-select
                                       label="rc_number"
                                       v-model="$module.formData.canvass"
@@ -42,64 +43,63 @@
                                     <input type="text" class="form-control" :value="$module.formData.canvass?.rc_number" readonly v-else>
                                 </div>
                                 <div class="form-group">
-                                    <label>Date</label>
+                                    <label>Date <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control" v-model="$module.formData.date_requested">
                                     <small class="form-text text-danger" v-if="$module.formErrors.date_requested"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Requisitioner</label>
+                                    <label>Requisitioner <span class="text-danger">*</span></label>
                                     <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by"></v-select>
                                     <!-- <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by" @option:selected="onChangeRequestedBy()"></v-select> -->
                                     <small class="form-text text-danger" v-if="$module.formErrors.requested_by"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Purpose</label>
+                                    <label>Purpose <span class="text-danger">*</span></label>
                                     <textarea class="form-control" rows="3" v-model="$module.formData.purpose"></textarea>
                                     <small class="form-text text-danger" v-if="$module.formErrors.purpose"> {{ errorMsg }} </small>
                                 </div>
+                            </div>
+
+                            <div class="col-6">
                                 <div class="form-group">
-                                    <label>Notes</label>
-                                    <textarea class="form-control" rows="3" v-model="$module.formData.notes"></textarea>
-                                    <small class="text-muted">optional</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Immediate Supervisor</label>
+                                    <label>Immediate Supervisor <span class="text-danger">*</span></label>
                                     <v-select label="fullname" :options="$module.employees" v-model="$module.formData.supervisor"></v-select>
                                     <small class="form-text text-danger" v-if="$module.formErrors.supervisor"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
                                     <label>Work Order Number</label>
                                     <input type="text" class="form-control" v-model="$module.formData.work_order_no">
-                                    <small class="form-text text-muted"> optional </small>
                                 </div>
                                 <div class="form-group">
                                     <label>Work Order Date</label>
                                     <input type="date" class="form-control" v-model="$module.formData.work_order_date">
-                                    <small class="form-text text-muted"> optional </small>
                                 </div>
                                 <div class="form-group">
                                     <label>Classification</label>
                                     <input type="text" class="form-control" readonly>
                                 </div>
+                                <div class="form-group">
+                                    <label>Notes</label>
+                                    <textarea class="form-control" rows="3" v-model="$module.formData.notes"></textarea>
+                                </div>
                             </div>
+                            
+                        </div>
 
-                            <div class="col-8">
-                                <UpdateApprovers :approvers="$module.formData.approvers" v-if="$module.formIsEditMode"/>
-                                <CreateApprovers :approvers="$module.defaultApprovers" v-else/>
+                        <div class="row mt-3">
+                            <div class="col-9" v-if="!$module.formIsEditMode">
+                                <CreateApprovers :approvers="$module.defaultApprovers"/>
                             </div>
-
+                            <div class="col-11" v-else>
+                                <UpdateApprovers :approvers="$module.formData.approvers"/>
+                            </div>
                         </div>
 
                     </div>
 
                 </div>
 
-
             </div>
-
-            <!-- <div class="col-6">
-                <CreateApprovers :approvers="$module.defaultApprovers"/>
-            </div> -->
         </div>
 
         <div class="row justify-content-center mt-5">

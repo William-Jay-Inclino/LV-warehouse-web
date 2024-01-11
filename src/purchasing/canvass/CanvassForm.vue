@@ -28,29 +28,28 @@
                                     <input type="text" class="form-control" :value="$module.formData.rc_number" disabled>
                                 </div>
                                 <div class="form-group">
-                                    <label>Date</label>
+                                    <label>Date <span class="text-danger">*</span></label>
                                     <input type="date" class="form-control" v-model="$module.formData.date_requested">
                                     <small class="form-text text-danger" v-if="$module.formErrors.date_requested"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Requisitioner</label>
+                                    <label>Requisitioner <span class="text-danger">*</span></label>
                                     <v-select label="fullname" :options="$module.employees" v-model="$module.formData.requested_by"></v-select>
                                     <small class="form-text text-danger" v-if="$module.formErrors.requested_by"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Noted By</label>
+                                    <label>Noted By <span class="text-danger">*</span></label>
                                     <v-select label="fullname" :options="$module.employees" v-model="$module.formData.noted_by"></v-select>
                                     <small class="form-text text-danger" v-if="$module.formErrors.noted_by"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Purpose</label>
+                                    <label>Purpose <span class="text-danger">*</span></label>
                                     <textarea class="form-control" rows="3" v-model="$module.formData.purpose"></textarea>
                                     <small class="form-text text-danger" v-if="$module.formErrors.purpose"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
                                     <label>Notes</label>
                                     <textarea class="form-control" rows="3" v-model="$module.formData.notes"></textarea>
-                                    <small class="text-muted">optional</small>
                                 </div>
                             </div>
         

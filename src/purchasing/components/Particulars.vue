@@ -10,10 +10,10 @@
                 <table class="table table-hover">
                     <thead>
                         <th width="5%">No.</th>
-                        <th width="30%">Description</th>
+                        <th width="30%">Description <span class="text-danger">*</span></th>
                         <th width="20%">Brand</th>
-                        <th width="20%">Unit</th>
-                        <th width="15%">Quantity</th>
+                        <th width="20%">Unit <span class="text-danger">*</span></th>
+                        <th width="15%">Quantity <span class="text-danger">*</span></th>
                         <th width="10%" class="text-center">
                             <i class="fas fa-fw fa-cogs"></i>
                         </th>
