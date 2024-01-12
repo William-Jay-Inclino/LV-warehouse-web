@@ -51,17 +51,13 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="text-center" colspan="6">
-                                <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Item</button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card-footer">
-            <div class="text-center text-danger" v-if="errorForm"> Particulars are required </div>
+        <div class="card-footer text-center">
+            <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Item</button>
+            <div class="text-danger" v-if="errorForm"> Particulars are required </div>
         </div>
 
     </div>

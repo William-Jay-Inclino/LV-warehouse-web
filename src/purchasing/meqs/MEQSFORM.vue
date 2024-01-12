@@ -18,18 +18,26 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
                         <h6 class="m-0 font-weight-bold"> Details </h6>
+
+                        <a href="javascript:void(0)" class="text-decoration-none" @click="$module.flags.isExpandedFormDetails = !$module.flags.isExpandedFormDetails">
+                            <i 
+                                :class="{'fa-angle-down': !$module.flags.isExpandedFormDetails, 'fa-angle-up': $module.flags.isExpandedFormDetails}"
+                                class="fas fa-fw fa-2x pointer text-light"
+                            ></i>
+                        </a>
                     </div>
         
-                    <div class="card-body">
+                    <div class="card-body" v-show="$module.flags.isExpandedFormDetails">
 
                         <div class="row">
-                            <div class="col-4">
+
+                            <div class="col-6">
                                 <div class="form-group">
                                     <label>MEQS Number</label>
                                     <input type="text" class="form-control" :value="$module.formData.meqs_number" disabled>
                                 </div>
                                 <div class="form-group">
-                                    <label>Reference Number</label>
+                                    <label>Reference Number <span class="text-danger">*</span></label>
                                     <div class="row">
                                         <div class="col-2">
                                             <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> {{ requestType[$module.formData.request_type].label }} </button>
@@ -45,17 +53,17 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Date</label>
-                                    <input type="date" class="form-control" v-model="$module.formData.meqs_date">
-                                    <small class="form-text text-danger" v-if="$module.formErrors.meqs_date"> {{ errorMsg }} </small>
-                                </div>
-                                <div class="form-group">
-                                    <label>PO Issued</label>
-                                </div>
-                                <div class="form-group">
-                                    <label>Purpose</label>
+                                    <label>Purpose <span class="text-danger">*</span></label>
                                     <textarea class="form-control" rows="3" v-model="$module.formData.purpose"></textarea>
                                     <small class="form-text text-danger" v-if="$module.formErrors.purpose"> {{ errorMsg }} </small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>Date <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" v-model="$module.formData.meqs_date">
+                                    <small class="form-text text-danger" v-if="$module.formErrors.meqs_date"> {{ errorMsg }} </small>
                                 </div>
                                 <div class="form-group">
                                     <label>Requisitioner</label>
@@ -64,15 +72,24 @@
                                 <div class="form-group">
                                     <label>Requisitioner Notes</label>
                                     <textarea class="form-control" rows="3" v-model="$module.formData.notes"></textarea>
-                                    <small class="text-muted">optional</small>
                                 </div>
                             </div>
 
-                            <div class="col-8">
-                                <UpdateApprovers :approvers="$module.formData.approvers" v-if="$module.formIsEditMode"/>
-                                <CreateApprovers :approvers="$module.defaultApprovers" v-else/>
+                            <div class="col-2" v-if="false">
+                                <div class="form-group">
+                                    <label>PO Issued</label>
+                                </div>
                             </div>
-
+                            
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-9" v-if="!$module.formIsEditMode">
+                                <CreateApprovers :approvers="$module.defaultApprovers"/>
+                            </div>
+                            <div class="col-11" v-else>
+                                <UpdateApprovers :approvers="$module.formData.approvers"/>
+                            </div>
                         </div>
 
                     </div>
@@ -100,6 +117,12 @@
                   @remove-item="removeItem" 
                   @add-supplier="addSupplier"
                 />
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-2">
+            <div class="col-9">
+                <AwardedItems :items="$module.formData.items" :form-suppliers="$module.formData.suppliers"/>
             </div>
         </div>
 
@@ -138,6 +161,7 @@
     import CreateApprovers from '../components/CreateApprovers.vue'
     import UpdateApprovers from '../components/UpdateApprovers.vue'
     import { ISupplier, ISupplierItem, REQUEST_TYPE } from "../../common/entities";
+    import AwardedItems from "../components/AwardedItems.vue";
 
     const toast = useToast();
     const router = useRouter()

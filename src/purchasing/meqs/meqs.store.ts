@@ -52,6 +52,12 @@ export const meqsStore = defineStore('meqs', () => {
     const _suppliers = ref<ISupplier[]>([])
     const _defaultApprovers = ref<IDefaultApprover[]>([])
     const _employees = ref<IEmployee[]>([])
+    
+    const flags = ref({
+        isExpandedFormDetails: true,
+        isExpandedFormParticulars: true,
+        isExpandedFormAwards: true
+    }) 
 
     // getters 
     const items = computed( () => {
@@ -422,6 +428,7 @@ export const meqsStore = defineStore('meqs', () => {
     }
 
     return {
+        flags,
         items,
         formData,
         formErrors,

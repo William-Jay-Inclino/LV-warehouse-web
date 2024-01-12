@@ -2,10 +2,16 @@
 
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
-            <h6 class="m-0 font-weight-bold"> Particulars </h6>
+            <h6 class="m-0 font-weight-bold"> Particulars and Unit Cost Per Item</h6>
+            <a href="javascript:void(0)" class="text-decoration-none" @click="$meqs.flags.isExpandedFormParticulars = !$meqs.flags.isExpandedFormParticulars">
+                <i 
+                    :class="{'fa-angle-down': !$meqs.flags.isExpandedFormParticulars, 'fa-angle-up': $meqs.flags.isExpandedFormParticulars}"
+                    class="fas fa-fw fa-2x pointer text-light"
+                ></i>
+            </a>
         </div>
 
-        <div class="card-body">
+        <div class="card-body" v-show="$meqs.flags.isExpandedFormParticulars">
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -49,7 +55,15 @@
                                 <small class="form-text text-danger" v-if="item.invalid.quantity"> {{ errorMsg }} </small>
                             </td>
                             <td v-for="itemSupplier in item.supplier_items">
-                                <input type="text" class="form-control" v-model="itemSupplier.price" style="width: 100px;">
+                                <div class="input-group mb-3" style="width: 150px;">
+                                    <input type="text" class="form-control" v-model="itemSupplier.price">
+                                    <div class="input-group-append">
+                                        <button @click="onClickStar(itemSupplier, item)" class="btn btn-sm">
+                                            <i class="fas fa-fw fa-star" :class="{'text-warning': itemSupplier.is_awarded}"></i>
+                                        </button>
+                                        <!-- <span class="input-group-text" id="basic-addon1">@</span> -->
+                                    </div>
+                                </div>
                             </td>
                             <td class="text-center">
                                 <button @click="onRemoveItem(i)" class="btn btn-light">
@@ -57,18 +71,14 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="text-center" colspan="6">
-                                <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Item</button>
-                                <button @click="onAddSupplier()" class="btn btn-secondary btn-sm ml-3">Add Supplier</button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card-footer">
-            <div class="text-center text-danger" v-if="errorForm"> Particulars are required </div>
+        <div class="card-footer text-center" v-show="$meqs.flags.isExpandedFormParticulars">
+            <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Item</button>
+            <button @click="onAddSupplier()" class="btn btn-secondary btn-sm ml-3">Add Supplier</button>
+            <div class="text-danger" v-if="errorForm"> Particulars are required </div>
         </div>
 
     </div>
@@ -77,10 +87,11 @@
 
 
 <script setup lang="ts">
-import { IBrand, ISupplier, IUnit } from '../../common/entities';
+import { IBrand, ISupplier, ISupplierItem, IUnit } from '../../common/entities';
 import { computed, ref } from 'vue';
 import { IITem, IItemWithSupplier } from '../../common/dto/IItem.dto';
 import Swal from 'sweetalert2';
+import { meqsStore } from '../meqs/meqs.store';
 import 'animate.css';
 
 const emit = defineEmits(['add-item', 'remove-item', 'add-supplier'])
@@ -93,6 +104,8 @@ const props = defineProps<{
     suppliers: ISupplier[],
     formSuppliers: ISupplier[]
 }>()
+
+const $meqs = meqsStore()
 
 const errorMsg = ref('Invalid field')
 
@@ -171,6 +184,14 @@ const onAddSupplier = () => {
     });
 };
 
+const onClickStar = (supplierItem: ISupplierItem, item: IItemWithSupplier) => {
 
+    item.supplier_items.forEach(i => {
+        i.is_awarded = false 
+    })
+
+    supplierItem.is_awarded = true
+
+}
 
 </script>

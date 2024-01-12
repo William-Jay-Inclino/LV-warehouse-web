@@ -154,6 +154,8 @@ export interface ISupplierItem {
     item: IItem
     supplier: ISupplier
     price: number
+
+    is_awarded: boolean 
 }
 
 export interface ISupplierItemDto {
