@@ -29,8 +29,8 @@ export const enum APPROVAL_STATUS {
     CANCELLED = 4,
 }
 
-export const enum REQUEST_TYPES {
-    JO = 1,
-    RV = 2,
+export enum REQUEST_TYPE {
+    RV = 1,
+    JO = 2,
     SPR = 3
 }

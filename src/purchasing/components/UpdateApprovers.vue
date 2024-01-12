@@ -1,15 +1,11 @@
 <template>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-primary text-white">
-            <h6 class="m-0 font-weight-bold"> Approvers </h6>
-        </div>
-
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-
-                    <thead>
+    <div>
+        <h6 class="m-0 font-weight-bold"> Approvers </h6>
+        <div class="table-responsive mt-2">
+                <table class="table table-bordered">
+                    <thead class="bg-secondary text-white">
+                        <th>Order</th>
                         <th>Position</th>
                         <th>Name</th>
                         <th class="text-center">Status</th>
@@ -18,6 +14,7 @@
 
                     <tbody>
                         <tr v-for="approver in approvers">
+                            <td class="align-middle"> {{ approver.order }} </td>
                             <td class="align-middle"> {{ approver.label }} </td>
                             <td class="align-middle"> {{ getFullname(approver.approver.firstname, approver.approver.middlename, approver.approver.lastname) }} </td>
                             <td class="text-center align-middle"> 
@@ -30,7 +27,7 @@
                                 </div>
                                 <div class="row" v-if="approver.date_approval">
                                     <div class="col">
-                                        <small> <i> {{ moment(approver.date_approval, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD hh:mm A') }} </i> </small>
+                                        <small> <i> {{ moment(Number(approver.date_approval)).format('YYYY-MM-DD') }} </i> </small>
                                     </div>
                                 </div>
                             </td>
@@ -39,24 +36,21 @@
                             </td>
                         </tr>
                     </tbody>
-
                 </table>
             </div>
-        </div>
-
     </div>
 
 </template>
 
 <script setup lang="ts">
-    import { IJOApprover, IRVApprover, ISPRApprover, IMEQSApprover } from '../../common/entities';
     import { getFullname } from '../../common';
+    import { IApprover } from '../entities/purchasing.entity';
     import { approvalStatus } from '../../common/constants'
     import moment from 'moment';
 
 
     defineProps<{
-        approvers: IJOApprover[] | IRVApprover[] | ISPRApprover[] | IMEQSApprover[] 
+        approvers: IApprover[]
     }>()
 
 </script>

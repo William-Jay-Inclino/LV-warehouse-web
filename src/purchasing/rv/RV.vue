@@ -6,7 +6,7 @@
 
 
 
-        <div class="row justify-content-center">
+        <div class="row justify-content-center mt-5">
 
             <div class="col-8">
 
@@ -22,11 +22,11 @@
                             <div class="card-header py-3 d-flex flex-row align-items-center">
                                 <div class="row w-100 justify-content-between align-items-center">
                                     <div class="col-8">
-                                        <h5 class="mb-0">List of Canvass</h5>
+                                        <h5 class="mb-0">List of RV</h5>
                                     </div>
                                     <div class="col-4 text-right">
-                                        <router-link :to="{name: routeNames.purchasing_canvass_form}">
-                                            <button class="btn btn-primary">Add Canvass</button>
+                                        <router-link :to="{name: routeNames.purchasing_rv_form}">
+                                            <button class="btn btn-primary">Add RV</button>
                                         </router-link>
                                     </div>
                                 </div>
@@ -45,9 +45,11 @@
                                             <table class="table table-hover">
                                                 <thead>
                                                     <tr>
-                                                        <th width="30%">RC Number</th>
-                                                        <th width="30%">Requisitioner</th>
-                                                        <th width="30%">Date</th>
+                                                        <th>RV Number</th>
+                                                        <th>RC Number</th>
+                                                        <th>Requisitioner</th>
+                                                        <th>Date</th>
+                                                        <th>Status</th>
                                                         <th class="text-center">
                                                             <i class="fas fa-fw fa-cogs"></i>
                                                         </th>
@@ -55,14 +57,20 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="item in $module.items">
-                                                        <td> {{ item.rc_number }} </td>
-                                                        <td> {{ getFullname(item.requested_by.firstname, item.requested_by.middlename, item.requested_by.lastname) }} </td>
+                                                        <td> {{ item.rv_number }} </td>
+                                                        <td> {{ item.canvass.rc_number }} </td>
+                                                        <td> {{ getFullname(item.requested_by!.firstname, item.requested_by!.middlename, item.requested_by!.lastname) }} </td>
                                                         <td> {{ item.date_requested }} </td>
+                                                        <td class="text-center align-middle"> 
+                                                            <span :class="{[`badge-${approvalStatus[item.status].color}`]: true}" class="badge badge-pill text-white"> 
+                                                                {{ approvalStatus[item.status].label }} 
+                                                            </span> 
+                                                        </td>
                                                         <td class="text-center">
                                                             <button @click="onClickUpdate(item)" class="btn btn-light btn-sm">
                                                                 <i class="fas fa-fw fa-pencil-alt"></i>
                                                             </button>
-                                                            <button @click="onDelete(item)" class="btn btn-light btn-sm">
+                                                            <button :disabled="item.is_referenced" @click="onDelete(item)" class="btn btn-light btn-sm custom-button">
                                                                 <i class="fas fa-fw fa-trash text-danger"></i>
                                                             </button>
                                                         </td>
@@ -95,30 +103,30 @@
 </template>
 
 <script setup lang="ts">
-import CanvassTitle from "./components/CanvassTitle.vue";
+import CanvassTitle from "./components/RVTitle.vue";
 import { useToast } from "vue-toastification";
 import Swal from 'sweetalert2'
-import SearchFilter from "./components/CanvassSearchFilter.vue";
-import TablePagination from './components/TablePagination.vue'
-import TablePerPage from './components/TableSelectPerPage.vue'
-import { routeNames } from '../common';
-import { canvassStore } from './canvass.store';
-import { getFullname } from '../common'
+import SearchFilter from "./components/RVSearchFilter.vue";
+import TablePagination from '../components/TablePagination.vue'
+import TablePerPage from '../components/TableSelectPerPage.vue'
+import { routeNames } from '../../common';
+import { rvStore } from './rv.store';
+import { getFullname } from '../../common'
 import { useRouter } from 'vue-router';
+import { approvalStatus } from '../../common/constants'
+import { IRV } from "../../common/entities";
 
-import { ICanvass } from "../common/entities";
-
-const $module = canvassStore()
+const $module = rvStore()
 const toast = useToast();
 const router = useRouter()
 
 $module.init()
 
-const onDelete = async(item: ICanvass) => {
+const onDelete = async(item: IRV) => {
 
     Swal.fire({
         title: "Are you sure?",
-        text: item.rc_number + " will be removed!",
+        text: item.rv_number + " will be removed!",
         position: "top",
         icon: "warning",
         showCancelButton: true,
@@ -128,13 +136,13 @@ const onDelete = async(item: ICanvass) => {
         reverseButtons: true,
         }).then( async(result) => {
         if (result.isConfirmed) {
-            const removed = await $module.onDelete(item.id)
+            const res = await $module.onDelete(item.id)
 
-            if(removed){
-                toast.success(item.rc_number + ' successfully removed!')
+            if(res.success){
+                toast.success(res.msg)
 
             }else{
-                toast.error('Failed to remove ' + item.rc_number)
+                toast.error(res.msg)
             }
         }
     });
@@ -142,9 +150,17 @@ const onDelete = async(item: ICanvass) => {
 }
 
 
-const onClickUpdate = (data: ICanvass) => {
-    router.push({name: routeNames.purchasing_canvass_form, query: {id: data.id}})
+const onClickUpdate = (data: IRV) => {
+    router.push({name: routeNames.purchasing_rv_form, query: {id: data.id}})
 }
 
 
 </script>
+
+
+<style scoped>
+.btn.custom-button[disabled] {
+    cursor: not-allowed;
+    /* Override any hover styles or other styles for the disabled state */
+}
+</style>

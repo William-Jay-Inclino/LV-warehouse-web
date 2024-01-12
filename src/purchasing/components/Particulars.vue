@@ -10,10 +10,10 @@
                 <table class="table table-hover">
                     <thead>
                         <th width="5%">No.</th>
-                        <th width="30%">Description</th>
+                        <th width="30%">Description <span class="text-danger">*</span></th>
                         <th width="20%">Brand</th>
-                        <th width="20%">Unit</th>
-                        <th width="15%">Quantity</th>
+                        <th width="20%">Unit <span class="text-danger">*</span></th>
+                        <th width="15%">Quantity <span class="text-danger">*</span></th>
                         <th width="10%" class="text-center">
                             <i class="fas fa-fw fa-cogs"></i>
                         </th>
@@ -51,17 +51,13 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr>
-                            <td class="text-center" colspan="6">
-                                <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Particular</button>
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="card-footer">
-            <div class="text-center text-danger" v-if="errorForm"> Particulars are required </div>
+        <div class="card-footer text-center">
+            <button @click="onAddItem()" class="btn btn-secondary btn-sm">Add Item</button>
+            <div class="text-danger" v-if="errorForm"> Particulars are required </div>
         </div>
 
     </div>

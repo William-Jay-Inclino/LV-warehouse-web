@@ -6,7 +6,7 @@
         </div>
         <div class="row mb-4">
         <div class="col">
-            <h2 class="h5 mb-0 text-gray-600">RV</h2>
+            <h2 class="h5 mb-0 text-gray-600">RV (Request Voucher)</h2>
         </div>
     </div>
 </template>

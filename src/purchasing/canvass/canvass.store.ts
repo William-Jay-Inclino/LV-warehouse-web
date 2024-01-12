@@ -1,12 +1,12 @@
 
 import { defineStore } from 'pinia'
-import { ICreateCanvassDto, IFormData, IUpdateCanvassDto } from './dto/canvass.dto'
+import { ICreateCanvassDto, IFormData, IUpdateCanvassDto } from './canvass.dto'
 import { computed, ref } from 'vue'
-import { IBrand, ICanvass, IEmployee, IUnit } from '../common/entities'
+import { IBrand, ICanvass, IEmployee, IUnit } from '../../common/entities'
 import moment from 'moment'
-import { getFullname, isValidDate } from '../common'
+import { getFullname, isValidDate } from '../../common'
 import { canvassService } from './canvass.service'
-import { IITem, IITemDto } from '../common/dto/IItem.dto'
+import { IITem, IITemDto } from '../../common/dto/IItem.dto'
 
 export const canvassStore = defineStore('canvass', () => {
 
@@ -42,12 +42,6 @@ export const canvassStore = defineStore('canvass', () => {
     const _brands = ref<IBrand[]>([])
     const _employees = ref<IEmployee[]>([])
 
-    // onMounted( async() => {
-    //     console.log(_store + 'onMounted()')
-    //     const items = await bartService.findAll()
-    //     setBarts(items)
-    // })
-
     // getters 
     const items = computed( () => {
         return _items.value.map((i) => ({
@@ -61,7 +55,7 @@ export const canvassStore = defineStore('canvass', () => {
         return _employees.value.map(obj => ({ ...obj, fullname: getFullname(obj.firstname, obj.middlename, obj.lastname) }))
     })
 
-    const formIsEditMode = computed( (): boolean => false)
+    const formIsEditMode = computed( (): boolean => !!formData.value.id)
 
     // setters 
 
@@ -88,26 +82,32 @@ export const canvassStore = defineStore('canvass', () => {
     const setFormData = (payload: {data: ICanvass}) => {
         console.log(_store + 'setFormData()', payload)
 
+        const date_requested = moment(Number(payload.data.date_requested)).format('YYYY-MM-DD')
         const requested_by = payload.data.requested_by 
         const noted_by = payload.data.noted_by
 
-        requested_by.label = getFullname(requested_by.firstname, requested_by.middlename, requested_by.lastname)
-        noted_by.label = getFullname(noted_by.firstname, noted_by.middlename, noted_by.lastname)
+        requested_by.fullname = getFullname(requested_by.firstname, requested_by.middlename, requested_by.lastname)
+        noted_by.fullname = getFullname(noted_by.firstname, noted_by.middlename, noted_by.lastname)
 
-        const items = payload.data.items.map(i => {
+        const items = payload.data.canvass_items.map(i => {
             const x = {} as IITem
             x.brand = i.item.brand
             x.description = i.item.description
-            // x.id = i.id
             x.quantity = i.item.quantity
             x.unit = i.item.unit
+            x.invalid = {
+                brand: false,
+                description: false,
+                quantity: false,
+                unit: false,
+            }
             return x
         }) 
 
         formData.value = {
             rc_number: payload.data.rc_number,
             id: payload.data.id,
-            date_requested: payload.data.date_requested,
+            date_requested: date_requested,
             purpose: payload.data.purpose,
             notes: payload.data.notes,
             requested_by: payload.data.requested_by,
@@ -124,17 +124,17 @@ export const canvassStore = defineStore('canvass', () => {
         setEmployees(employees)
     }
 
-    const initForm = async() => {
-        const { rc_number, units, brands, employees } = await canvassService.initForm()
+    const initForm = async(id?: string) => {
+        const { rc_number, units, brands, employees, canvass } = await canvassService.initForm(id)
         formData.value.rc_number = rc_number
         setBrands(brands)
         setUnits(units)
         setEmployees(employees)
-    }
 
-    // const initUpdateFormData = async(id: string) => {
-    //     console.log(_store + 'initUpdateFormData()', id)
-    // }
+        if(canvass){
+            setFormData({data: canvass})
+        }
+    }
 
     const onSubmit = async(payload: { formData: IFormData }): Promise<{success: boolean, msg: string}> => {
 
@@ -182,10 +182,6 @@ export const canvassStore = defineStore('canvass', () => {
             item.invalid.unit = false
             item.invalid.quantity = false
 
-            if(!item.brand){
-                item.invalid.brand = true 
-                hasErrorItems = true
-            }
             if(!item.unit){
                 item.invalid.unit = true 
                 hasErrorItems = true
@@ -200,10 +196,13 @@ export const canvassStore = defineStore('canvass', () => {
             }
         }
 
+        console.log('hasErrorDetails', hasErrorDetails)
+        console.log('hasErrorItems', hasErrorItems)
+
         if(hasErrorDetails || hasErrorItems){
             return {
                 success: false,
-                msg: 'Failed to save canvass!'
+                msg: 'Failed to save canvass. There are form errors!'
             }
         }
 
@@ -217,7 +216,7 @@ export const canvassStore = defineStore('canvass', () => {
             data.noted_by_id = formData.noted_by?.id
             data.items = formData.items.map(i => {
                 const x = {} as IITemDto
-                x.brand_id = i.brand!.id
+                x.brand_id = i.brand ? i.brand.id : null
                 x.description = i.description
                 x.quantity = i.quantity
                 x.unit_id = i.unit!.id
@@ -235,7 +234,7 @@ export const canvassStore = defineStore('canvass', () => {
             data.noted_by_id = formData.noted_by!.id
             data.items = formData.items.map(i => {
                 const x = {} as IITemDto
-                x.brand_id = i.brand!.id
+                x.brand_id = i.brand ? i.brand.id : null
                 x.description = i.description
                 x.quantity = i.quantity
                 x.unit_id = i.unit!.id
@@ -243,11 +242,6 @@ export const canvassStore = defineStore('canvass', () => {
             })
 
             return await onCreate( {data} )
-        }
-
-        return {
-            success: true,
-            msg: 'successfully saved!'
         }
 
     }
@@ -268,15 +262,27 @@ export const canvassStore = defineStore('canvass', () => {
 
         return {
             success: false,
-            msg: 'Failed to save Canvass'
+            msg: 'Failed to save Canvass. Please refresh the page and try again'
         }
     }
 
     const onUpdate = async(payload: {id: string, data: IUpdateCanvassDto}): Promise<{success: boolean, msg: string}> => {
-        console.log(_store + 'onUpdate()', payload)
+        console.log('store: onUpdate()', payload)
+        
+        const updated = await canvassService.update(payload)
+
+        if(updated){
+
+            return {
+                success: true,
+                msg: 'Canvass successfully updated!'
+            }
+            
+        }
+
         return {
             success: false,
-            msg: 'Failed to save Canvass'
+            msg: 'Failed to update Canvass!'
         }
 
     }
@@ -291,24 +297,26 @@ export const canvassStore = defineStore('canvass', () => {
         formData.value.items.splice(payload.indx, 1)
     }
 
-    const onDelete = async(id: string): Promise<boolean> => {
+    const onDelete = async(id: string): Promise<{success: boolean, msg: string}> => {
         console.log(_store + 'onDelete()', id)
 
         const indx = _items.value.findIndex(i => i.id === id)
 
         if(indx === -1){
             console.error('Item not found')
-            return false 
+            return {
+                success: false,
+                msg: 'Canvass not found'
+            }
         }
 
-        const deleted = await canvassService.remove(id)
+        const res = await canvassService.remove(id)
 
-        if(deleted){
+        if(res.success){
             _items.value.splice(indx, 1)
-            return true
         }
 
-        return false 
+        return res 
 
     }
 

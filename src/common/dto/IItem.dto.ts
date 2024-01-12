@@ -1,4 +1,4 @@
-import { IBrand, ISupplierItem, IUnit } from "../entities"
+import { IBrand, ISupplierItem, ISupplierItemDto, IUnit } from "../entities"
 
 export interface IITem {
     description: string
@@ -34,19 +34,20 @@ export interface IItemWithSupplier {
         supplier_items: boolean
     }
 
+
 }
 
 export interface IITemDto {
     description: string
-    brand_id: string
+    brand_id?: string | null
     unit_id: string
     quantity: number 
 }
 
 export interface IITemWithSuppliersDto {
     description: string
-    brand_id: string
+    brand_id: string | null
     unit_id: string
     quantity: number 
-    supplier_items: ISupplierItem[]
+    supplier_items: ISupplierItemDto[]
 }
